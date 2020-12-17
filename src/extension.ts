@@ -103,7 +103,7 @@ async function createSession(sessionProvider) {
 	session.setSessionName(csEnvironment.data.EnvironmentId.split("-")[0]);
 	sessionProvider.refresh();
 
-	console.info("Connecting to " + csEnvironment.data.EnvironmentId);
+	console.info("Connecting to " + csEnvironment.data.EnvironmentId + " (" + csEnvironment.data.Status + ")");
 
 	if (csEnvironment.data.Status == "SUSPENDED") {
 		awsreq = aws4.sign({

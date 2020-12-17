@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
+import { STS } from '@aws-sdk/client-sts';
 
 function promptForMFAIfRequired(serial: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -19,17 +20,33 @@ export function GetAWSCreds(): Thenable<any> {
     return new Promise(async (resolve, reject) => {
         let extensionConfig = vscode.workspace.getConfiguration('awscloudshell');
         let awsregion = extensionConfig.get('region');
+        let assumeRole = extensionConfig.get('assumeRole');
 
         let creds = await defaultProvider({
             profile: extensionConfig.get('profile') || null,
             mfaCodeProvider: promptForMFAIfRequired
         })();
 
-        resolve({
-            'accessKey': creds.accessKeyId,
-            'secretKey': creds.secretAccessKey,
-            'sessionToken': creds.sessionToken
-        });
+        if (assumeRole) {
+            const stsclient = new STS({ credentials: creds });
+
+            const assumedSession = await stsclient.assumeRole({
+                RoleArn: assumeRole.toString(),
+                RoleSessionName: 'VSCode'
+            });
+            
+            resolve({
+                'accessKey': assumedSession.Credentials.AccessKeyId,
+                'secretKey': assumedSession.Credentials.SecretAccessKey,
+                'sessionToken': assumedSession.Credentials.SessionToken
+            });
+        } else {
+            resolve({
+                'accessKey': creds.accessKeyId,
+                'secretKey': creds.secretAccessKey,
+                'sessionToken': creds.sessionToken
+            });
+        }
     });
 }
 
