@@ -16,7 +16,7 @@ In order to use this extension, you will need:
 * The [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed
 * A profile configured that meets the below requirements
 
-Once you have installed the extension, you should go to your VS Code preferences (hit F1 then enter "Preferences: Open Settings (UI)" -> Extensions -> AWS CloudShell Configuration) and specify your `region` and `profile`. Once the settings are updated, you may click the sidebar icon and then the "Start Session" (+) button.
+Once you have installed the extension, you should go to your VS Code preferences (hit F1 then enter "Preferences: Open Settings (UI)" -> Extensions -> AWS CloudShell Configuration) and specify your `region` and one or both of `profile` and/or `assumeRole`. Once the settings are updated, you may click the sidebar icon and then the "Start Session" (+) button.
 
 Currently, you **MUST** either use a profile with a session token attached to it, or use the `assumeRole` property to assume a role with the [necessary permissions](https://console.aws.amazon.com/iam/home?region=us-east-1#/policies/arn:aws:iam::aws:policy/AWSCloudShellFullAccess$jsonEditor). Alternatives may be provided in a future release.
 
