@@ -30,4 +30,5 @@ Setting | Description
 `awscloudshell.profile` | The profile name (usually as specified in `~/.aws/credentials`)
 `awscloudshell.region` | The AWS region to connect to
 `awscloudshell.assumeRole` | The role ARN to assume
+`awscloudshell.enableUpload` | Whether to enable an upload menu item from the Explorer view (experimental)
 

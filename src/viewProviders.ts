@@ -7,7 +7,9 @@ class Session extends vscode.TreeItem {
 	public label: string
     public state: string
     public name: string
-    public terminal: vscode.Terminal
+	public terminal: vscode.Terminal
+	public creds;
+	public environmentId;
 
 	constructor(
 		public region: string,
@@ -18,7 +20,6 @@ class Session extends vscode.TreeItem {
         this.region = region;
 		this.label = region + " - <new session> (connecting)";
 		this.state = "CONNECTING";
-		console.log(this.iconPath);
     }
     
     setSessionName(name: string): void {
@@ -35,7 +36,15 @@ class Session extends vscode.TreeItem {
     setTerminal(terminal: vscode.Terminal): void {
 		this.terminal = terminal;
 		vscode.window.activeColorTheme.kind
-    }
+	}
+	
+	setCreds(creds): void {
+		this.creds = creds;
+	}
+	
+	setEnvironmentId(environmentId): void {
+		this.environmentId = environmentId;
+	}
 
 	iconPath = path.join(__filename, '..', '..', 'resources', 'icons', (vscode.window.activeColorTheme.kind == vscode.ColorThemeKind.Light ? 'session-light.png' : 'session-dark.png'));
 
@@ -47,7 +56,9 @@ export class SessionProvider implements vscode.TreeDataProvider<Session> {
 	private _onDidChangeTreeData: vscode.EventEmitter<Session | undefined> = new vscode.EventEmitter<Session | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<Session | undefined> = this._onDidChangeTreeData.event;
 
-	private sessions: Session[]
+	public sessions: Session[]
+
+	private uploadCmdDisposable;
 
 	constructor() {
 		this.sessions = []
@@ -78,6 +89,10 @@ export class SessionProvider implements vscode.TreeDataProvider<Session> {
 		return new Promise(resolve => {
 			resolve(this.sessions);
 		});
+	}
+
+	getLastSession(): Session {
+		return this.sessions[this.sessions.length - 1];
 	}
 
 	onError(): void {

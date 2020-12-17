@@ -6,7 +6,7 @@
         "name": "Ian Mckay",
         "email": "vscodeext@ian.mn"
     },
-    "version": "0.1.1",
+    "version": "0.1.3",
     "publisher": "iann0036",
     "icon": "resources/logo_128.png",
     "engines": {
@@ -50,6 +50,12 @@
                     "when": "view == aws-cloudshell-view-1-sessions",
                     "group": "navigation"
                 }
+            ],
+            "explorer/context": [
+                {
+                    "command": "awscloudshell.uploadFile",
+                    "when": "resourceScheme == file && config.awscloudshell.enableUpload == true"
+                }
             ]
         },
         "commands": [
@@ -61,6 +67,11 @@
                     "light": "resources/icons/new-light.png",
                     "dark": "resources/icons/new-dark.png"
                 }
+            },
+            {
+                "command": "awscloudshell.uploadFile",
+                "title": "Upload file to AWS CloudShell",
+                "category": "AWS CloudShell"
             }
         ],
         "viewsContainers": {
@@ -98,6 +109,11 @@
                     "type": "string",
                     "default": "",
                     "description": "The ARN of a role to assume into."
+                },
+                "awscloudshell.enableUpload": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable upload file menu option from Explorer view."
                 }
             }
         }
@@ -124,6 +140,7 @@
         "aws4": "^1.11.0",
         "axios": "^0.21.0",
         "axios-cookiejar-support": "^1.0.1",
+        "form-data": "^3.0.0",
         "tough-cookie": "^4.0.0",
         "utf-8-validate": "^5.0.3",
         "xml2js": "^0.4.23"
