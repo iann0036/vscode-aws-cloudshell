@@ -6,7 +6,7 @@
         "name": "Ian Mckay",
         "email": "vscodeext@ian.mn"
     },
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "iann0036",
     "icon": "resources/logo_128.png",
     "engines": {

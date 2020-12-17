@@ -42,6 +42,11 @@ export function activate(context: vscode.ExtensionContext) {
 async function uploadFile(file, sessionProvider: ViewProviders.SessionProvider) {
 	const session = sessionProvider.getLastSession();
 
+	if (!session || session.state != "CONNECTED") {
+		vscode.window.showWarningMessage("Session not connected, cannot proceed with upload");
+		return;
+	}
+
 	const filename = file.path.split("/").pop().split("\\").pop(); // TODO: Find an actual util for this
 
 	let statusBar = vscode.window.setStatusBarMessage("$(globe) Uploading '" + filename + "'...", 60000);
@@ -62,8 +67,6 @@ async function uploadFile(file, sessionProvider: ViewProviders.SessionProvider) 
 		headers: awsreq.headers
 	});
 
-	console.log(csFileUploadPaths.data);
-
 	const formData = Object.entries(csFileUploadPaths.data.FileUploadPresignedFields).reduce((fd, [ key, val ]) =>
       (fd.append(key, val), fd), new FormData());
 
@@ -75,9 +78,8 @@ async function uploadFile(file, sessionProvider: ViewProviders.SessionProvider) 
 			"Content-Length": formData.getLengthSync()
 		}
 	});
-	console.log("Uploaded");
 
-	console.log(fileUpload.data);
+	console.info("Uploaded");
 
 	awsreq = aws4.sign({
 		service: 'cloudshell',
@@ -96,8 +98,10 @@ async function uploadFile(file, sessionProvider: ViewProviders.SessionProvider) 
 
 	const sideSession = spawn("session-manager-plugin", [JSON.stringify(csSession.data), session.region, "StartSession"]);
 
-	sideSession.stdout.pipe(process.stdout);
-	sideSession.stdin.write("aws s3 cp " + csFileUploadPaths.data.FileDownloadPresignedUrl + " .\n");
+	console.log(csFileUploadPaths.data.FileDownloadPresignedUrl);
+	await new Promise(resolve => setTimeout(resolve, 3000));
+
+	sideSession.stdin.write("wget " + csFileUploadPaths.data.FileDownloadPresignedUrl + "\nexit\n");
 	sideSession.stdin.end();
 
 	statusBar.dispose();
