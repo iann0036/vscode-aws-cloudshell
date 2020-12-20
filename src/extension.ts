@@ -176,6 +176,9 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 		headers: awsreq.headers
 	});
 
+	console.log("Initial createEnvironment response:");
+	console.log(csEnvironment.data);
+
 	session.setSessionName(csEnvironment.data.EnvironmentId.split("-")[0]);
 	session.setEnvironmentId(csEnvironment.data.EnvironmentId);
 
@@ -235,6 +238,9 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 		const csRedeem = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
 			headers: awsreq.headers
 		});
+		
+		console.log("redeemCode response:");
+		console.log(csRedeem.data);
 
 		awsreq = aws4.sign({
 			service: 'cloudshell',
@@ -248,6 +254,9 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 				RefreshToken: csRedeem.data.RefreshToken
 			})
 		}, aws_creds);
+		
+		console.log("putCredentials response:");
+		console.log(awsreq.data);
 
 		await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
 			headers: awsreq.headers
@@ -294,6 +303,9 @@ async function startCsSession(csEnvironment, session) {
 				headers: awsreq.headers
 			});
 
+			console.log("startEnvironment response:");
+			console.log(csEnvironmentStart.data);
+
 			let environmentStatus = "RESUMING";
 			while (environmentStatus == "RESUMING") {
 				await new Promise(resolve => setTimeout(resolve, 2000));
@@ -313,6 +325,9 @@ async function startCsSession(csEnvironment, session) {
 					headers: awsreq.headers
 				});
 
+				console.log("getEnvironmentStatus response:");
+				console.log(csEnvironmentStatus.data);
+
 				environmentStatus = csEnvironmentStatus.data.Status;
 			}
 		}
@@ -331,6 +346,9 @@ async function startCsSession(csEnvironment, session) {
 		const csSession = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
 			headers: awsreq.headers
 		});
+
+		console.log("createSession response:");
+		console.log(csSession.data);
 
 		return csSession;
 	} catch(err) {
