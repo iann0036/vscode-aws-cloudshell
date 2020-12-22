@@ -11,6 +11,14 @@ import * as FormData from 'form-data'
 import { GetSessionTokenCommand } from '@aws-sdk/client-sts';
 import { spawn } from 'child_process';
 
+function getSessionManagerPath(): string {
+	if (process.platform == "win32") {
+		return "C:\\Program Files\\Amazon\\SessionManagerPlugin\\bin\\session-manager-plugin.exe";
+	}
+	
+	return "session-manager-plugin";
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	console.info('AWS CloudShell extension loaded');
 
@@ -96,7 +104,7 @@ async function uploadFile(file, sessionProvider: ViewProviders.SessionProvider) 
 
 	let csSession = await startCsSession(csEnvironment, session);
 
-	const sideSession = spawn("session-manager-plugin", [JSON.stringify(csSession.data), session.region, "StartSession"]);
+	const sideSession = spawn(getSessionManagerPath(), [JSON.stringify(csSession.data), session.region, "StartSession"]);
 
 	console.log(csFileUploadPaths.data.FileDownloadPresignedUrl);
 	await new Promise(resolve => setTimeout(resolve, 3000));
@@ -254,9 +262,6 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 				RefreshToken: csRedeem.data.RefreshToken
 			})
 		}, aws_creds);
-		
-		console.log("putCredentials response:");
-		console.log(awsreq.data);
 
 		await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
 			headers: awsreq.headers
@@ -270,7 +275,7 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 
 	//
 
-	const terminal = vscode.window.createTerminal("AWS CloudShell", "session-manager-plugin", [JSON.stringify(csSession.data), awsregion, "StartSession"]);
+	const terminal = vscode.window.createTerminal("AWS CloudShell", getSessionManagerPath(), [JSON.stringify(csSession.data), awsregion, "StartSession"]);
 
 	session.setTerminal(terminal);
 	sessionProvider.refresh();
@@ -287,48 +292,52 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 
 async function startCsSession(csEnvironment, session) {
 	try {
-		if (csEnvironment.data.Status != "RUNNING") {
-			let awsreq = aws4.sign({
-				service: 'cloudshell',
-				region: session.region,
-				method: 'POST',
-				path: '/startEnvironment',
-				headers: {},
-				body: JSON.stringify({
-					EnvironmentId: csEnvironment.data.EnvironmentId
-				})
-			}, session.creds);
-		
-			const csEnvironmentStart = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
-				headers: awsreq.headers
-			});
-
-			console.log("startEnvironment response:");
-			console.log(csEnvironmentStart.data);
-
-			let environmentStatus = "RESUMING";
-			while (environmentStatus == "RESUMING") {
-				await new Promise(resolve => setTimeout(resolve, 2000));
-
-				awsreq = aws4.sign({
+		while (csEnvironment.data.Status != "RUNNING") {
+			try {
+				let awsreq = aws4.sign({
 					service: 'cloudshell',
 					region: session.region,
 					method: 'POST',
-					path: '/getEnvironmentStatus',
+					path: '/startEnvironment',
 					headers: {},
 					body: JSON.stringify({
 						EnvironmentId: csEnvironment.data.EnvironmentId
 					})
 				}, session.creds);
 			
-				let csEnvironmentStatus = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
+				const csEnvironmentStart = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
 					headers: awsreq.headers
 				});
 
-				console.log("getEnvironmentStatus response:");
-				console.log(csEnvironmentStatus.data);
+				console.log("startEnvironment response:");
+				console.log(csEnvironmentStart.data);
 
-				environmentStatus = csEnvironmentStatus.data.Status;
+				let environmentStatus = "RESUMING";
+				while (environmentStatus == "RESUMING") {
+					await new Promise(resolve => setTimeout(resolve, 2000));
+
+					awsreq = aws4.sign({
+						service: 'cloudshell',
+						region: session.region,
+						method: 'POST',
+						path: '/getEnvironmentStatus',
+						headers: {},
+						body: JSON.stringify({
+							EnvironmentId: csEnvironment.data.EnvironmentId
+						})
+					}, session.creds);
+				
+					csEnvironment = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
+						headers: awsreq.headers
+					});
+
+					console.log("getEnvironmentStatus response:");
+					console.log(csEnvironment.data);
+
+					environmentStatus = csEnvironment.data.Status;
+				}
+			} catch(err) {
+				await new Promise(resolve => setTimeout(resolve, 3000));
 			}
 		}
 
