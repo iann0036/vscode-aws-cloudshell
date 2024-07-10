@@ -31,4 +31,6 @@ Setting | Description
 `awscloudshell.region` | The AWS region to connect to
 `awscloudshell.assumeRole` | The role ARN to assume
 `awscloudshell.enableUpload` | Whether to enable an upload menu item from the Explorer view (experimental)
-
+`awscloudshell.vpcid` | VPC Id (experimental)
+`awscloudshell.subnetid` | Subnet Id (experimental)
+`awscloudshell.securitygroupid` | Security Group Id (experimental)

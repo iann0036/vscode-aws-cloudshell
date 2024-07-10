@@ -55,6 +55,21 @@ export function GetRegion(): string {
     return extensionConfig.get('region') || "us-east-1";
 }
 
+export function GetVPCId(): string | null {
+    let extensionConfig = vscode.workspace.getConfiguration('awscloudshell');
+    return extensionConfig.get('vpcid');
+}
+
+export function GetSubnetId(): string | null {
+    let extensionConfig = vscode.workspace.getConfiguration('awscloudshell');
+    return extensionConfig.get('subnetid');
+}
+
+export function GetSecurityGroupId(): string | null {
+    let extensionConfig = vscode.workspace.getConfiguration('awscloudshell');
+    return extensionConfig.get('securitygroupid');
+}
+
 export function GetProxy(): string | null {
     let extensionConfig = vscode.workspace.getConfiguration('awscloudshell');
     let proxy: string = extensionConfig.get('proxy');

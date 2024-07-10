@@ -114,6 +114,21 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable upload file menu option from Explorer view."
+                },
+                "awscloudshell.vpcid": {
+                    "type": "string",
+                    "default": "",
+                    "description": "The VPC Id to attach this environment to."
+                },
+                "awscloudshell.subnetid": {
+                    "type": "string",
+                    "default": "",
+                    "description": "The Subnet Id to attach this environment to."
+                },
+                "awscloudshell.securitygroupid": {
+                    "type": "string",
+                    "default": "",
+                    "description": "The Security Group Id to attach this environment to."
                 }
             }
         }
