@@ -176,7 +176,7 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 	let security_group_id = Utils.GetSecurityGroupId();
 	let body = JSON.stringify({});
 
-	if vpc_id && subnet_id && security_group_id {
+	if (vpc_id && subnet_id && security_group_id) {
 		body = JSON.stringify({
 			VpcConfig: {
 				VpcId: vpc_id,
