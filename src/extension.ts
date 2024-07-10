@@ -171,13 +171,28 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 
 	session.setCreds(aws_creds);
 
+	let vpc_id = Utils.GetVPCId();
+	let subnet_id = Utils.GetSubnetId();
+	let security_group_id = Utils.GetSecurityGroupId();
+	let body = {};
+
+	if vpc_id && subnet_id && security_group_id {
+		body = JSON.stringify({
+			VpcConfig: {
+				VpcId: vpc_id,
+				SecurityGroupIds: [subnet_id],
+				SubnetIds: [security_group_id]
+			}
+		})
+	}
+
 	let awsreq = aws4.sign({
 		service: 'cloudshell',
 		region: awsregion,
 		method: 'POST',
 		path: '/createEnvironment',
 		headers: {},
-		body: JSON.stringify({})
+		body: JSON.stringify(body)
 	}, aws_creds);
 
 	const csEnvironment = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
