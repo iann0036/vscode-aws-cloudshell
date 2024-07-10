@@ -174,7 +174,7 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 	let vpc_id = Utils.GetVPCId();
 	let subnet_id = Utils.GetSubnetId();
 	let security_group_id = Utils.GetSecurityGroupId();
-	let body = {};
+	let body = JSON.stringify({});
 
 	if vpc_id && subnet_id && security_group_id {
 		body = JSON.stringify({
@@ -192,7 +192,7 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 		method: 'POST',
 		path: '/createEnvironment',
 		headers: {},
-		body: JSON.stringify(body)
+		body: body
 	}, aws_creds);
 
 	const csEnvironment = await axios.post("https://" + awsreq.hostname + awsreq.path, awsreq.body, {
