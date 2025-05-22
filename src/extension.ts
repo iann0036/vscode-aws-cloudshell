@@ -178,10 +178,11 @@ async function createSession(sessionProvider: ViewProviders.SessionProvider) {
 
 	if (vpc_id && subnet_id && security_group_id) {
 		body = JSON.stringify({
+			EnvironmentName: 'vscode-aws-cloudshell',
 			VpcConfig: {
 				VpcId: vpc_id,
-				SecurityGroupIds: [subnet_id],
-				SubnetIds: [security_group_id]
+				SecurityGroupIds: [security_group_id],
+				SubnetIds: [subnet_id]
 			}
 		})
 	}
