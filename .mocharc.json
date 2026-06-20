@@ -1,0 +1,5 @@
+{
+    "require": ["test-support/vscode-stub.js"],
+    "spec": ["out/test/**/*.test.js"],
+    "timeout": 10000
+}
